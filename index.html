@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MindFacts: True or False!</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+
+  body {
+    margin: 0;
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(135deg, #FFDEE9, #B5FFFC);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    flex-direction: column;
+  }
+
+  h1 {
+    color: #333;
+    margin-bottom: 30px;
+    font-size: 2.2em;
+    text-shadow: 1px 1px 2px #fff;
+    text-align: center;
+  }
+
+  .card {
+    background: #fff;
+    padding: 30px;
+    border-radius: 20px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+    max-width: 600px;
+    text-align: center;
+    transition: transform 0.3s, opacity 0.3s;
+  }
+
+  .card.fade {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+
+  #fact {
+    font-size: 1.5em;
+    margin-bottom: 20px;
+    min-height: 80px;
+  }
+
+  button {
+    padding: 12px 25px;
+    margin: 10px;
+    font-size: 1.2em;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: transform 0.2s;
+  }
+
+  button:hover {
+    transform: scale(1.1);
+  }
+
+  #trueBtn { background-color: #A1FFB6; }
+  #falseBtn { background-color: #FF9AA2; }
+  #newFactBtn { background-color: #FFD6A5; margin-top: 20px; }
+
+  #feedback {
+    font-size: 1.5em;
+    font-weight: bold;
+    margin-top: 15px;
+    min-height: 30px;
+    transition: transform 0.3s;
+  }
+
+  #streak {
+    margin-top: 10px;
+    font-size: 1.2em;
+    color: #555;
+  }
+</style>
+</head>
+<body>
+
+<h1>MindFacts: True or False!</h1>
+
+<div class="card" id="card">
+  <div id="fact">Click "New Fact!" to start!</div>
+  <div>
+    <button id="trueBtn" onclick="guess(true)">True ✅</button>
+    <button id="falseBtn" onclick="guess(false)">False ❌</button>
+  </div>
+  <button id="newFactBtn" onclick="newFact()">New Fact</button>
+  <div id="feedback"></div>
+  <div id="streak">Current Streak: 0</div>
+</div>
+
+<script>
+let facts = [
+  // ---------- 150 REAL FACTS ----------
+  {text:"Octopuses have three hearts.", truth:true},
+  {text:"Honey never spoils.", truth:true},
+  {text:"Bananas are berries, but strawberries aren't.", truth:true},
+  {text:"Sharks can sleep with one eye open.", truth:true},
+  {text:"Sloths can hold their breath longer than dolphins.", truth:true},
+  {text:"Venus rotates clockwise on its axis.", truth:true},
+  {text:"Water can boil and freeze at the same time under certain conditions.", truth:true},
+  {text:"Butterflies taste with their feet.", truth:true},
+  {text:"The Eiffel Tower can be 15 cm taller during summer.", truth:true},
+  {text:"Cows have best friends and get stressed when separated.", truth:true},
+  {text:"Sea otters hold hands while sleeping.", truth:true},
+  {text:"Bees can recognize human faces.", truth:true},
+  {text:"Some turtles can breathe through their butts.", truth:true},
+  {text:"Hummingbirds are the only birds that can fly backwards.", truth:true},
+  {text:"A group of flamingos is called a flamboyance.", truth:true},
+  {text:"Slugs have four noses.", truth:true},
+  {text:"Your stomach lining renews every 3–4 days.", truth:true},
+  {text:"Crows can recognize human faces.", truth:true},
+  {text:"Polar bears have black skin under their fur.", truth:true},
+  {text:"The Moon has moonquakes.", truth:true},
+  {text:"Avocados are technically berries.", truth:true},
+  {text:"Sharks existed before trees.", truth:true},
+  {text:"Dolphins have unique names for each other.", truth:true},
+  {text:"The fingerprints of a koala are almost identical to humans.", truth:true},
+  {text:"Rats laugh when tickled.", truth:true},
+  {text:"Wombat poop is cube-shaped.", truth:true},
+  {text:"A day on Venus is longer than a year on Venus.", truth:true},
+  {text:"Octopus blood is blue.", truth:true},
+  {text:"Sea horses are monogamous and mate for life.", truth:true},
+  {text:"Sloths can rotate their heads almost 270 degrees.", truth:true},
+  {text:"Sharks have been around for over 400 million years.", truth:true},
+  {text:"The shortest war in history lasted 38 minutes.", truth:true},
+  {text:"There are more stars in the universe than grains of sand on Earth.", truth:true},
+  {text:"Some bamboo species can grow almost a meter in a day.", truth:true},
+  {text:"A group of crows is called a murder.", truth:true},
+  {text:"Jellyfish are 95% water.", truth:true},
+  {text:"Water can exist as a liquid at temperatures below freezing under pressure.", truth:true},
+  {text:"The Sahara Desert used to be a lush green area.", truth:true},
+  {text:"Cats can make over 100 vocal sounds.", truth:true},
+  {text:"Dogs have three eyelids.", truth:true},
+  {text:"There’s a species of mushroom that glows in the dark.", truth:true},
+  {text:"Some frogs can freeze completely and come back to life.", truth:true},
+  {text:"The heart of a blue whale is the size of a small car.", truth:true},
+  {text:"Octopuses can change color and texture to blend with surroundings.", truth:true},
+  {text:"There are more microbes in your mouth than humans on Earth.", truth:true},
+  {text:"A bolt of lightning contains enough energy to toast 100,000 slices of bread.", truth:true},
+  {text:"Sloths defecate only once a week.", truth:true},
+  {text:"Sharks can detect a drop of blood in an Olympic-sized swimming pool.", truth:true},
+  {text:"A day on Mercury is twice as long as its year.", truth:true},
+  {text:"Ants can lift 50 times their body weight.", truth:true},
+  {text:"Butterflies can see ultraviolet light.", truth:true},
+  {text:"Orcas are actually dolphins.", truth:true},
+  {text:"The fingerprints of humans and chimpanzees are extremely similar.", truth:true},
+  {text:"Ravens can mimic human speech.", truth:true},
+  {text:"Some lizards can detach their tails to escape predators.", truth:true},
+  {text:"The Great Wall of China is visible from space (with caveats).", truth:true},
+  {text:"Sea stars can regenerate lost arms.", truth:true},
+  {text:"Sloths are excellent swimmers.", truth:true},
+  {text:"Penguins can drink seawater.", truth:true},
+  {text:"Pineapples take about two years to grow.", truth:true},
+  {text:"Sharks don’t get cancer as often as humans.", truth:true},
+  {text:"Owls can rotate their heads 270 degrees.", truth:true},
+  {text:"Some snakes give live birth.", truth:true},
+  {text:"Cheetahs are the fastest land animals.", truth:true},
+  {text:"The Amazon rainforest produces 20% of the world’s oxygen.", truth:true},
+  {text:"Sloths have extra neck vertebrae to rotate heads.", truth:true},
+  {text:"The tongue of a blue whale weighs as much as an elephant.", truth:true},
+  {text:"The human brain can generate about 23 watts of power.", truth:true},
+  {text:"A cockroach can live for weeks without its head.", truth:true},
+  {text:"The first oranges weren’t orange.", truth:true},
+  {text:"Some spiders can survive underwater for hours.", truth:true},
+  {text:"A giraffe’s neck has the same number of vertebrae as a human.", truth:true},
+  {text:"The heart of a shrimp is located in its head.", truth:true},
+  {text:"Ostriches can run faster than horses.", truth:true},
+  {text:"Some fish can change their sex naturally.", truth:true},
+  {text:"Crows can use tools to get food.", truth:true},
+  {text:"There are more trees on Earth than stars in the Milky Way galaxy.", truth:true},
+  {text:"Camels have three eyelids.", truth:true},
+  {text:"Sloths’ fur hosts algae that helps camouflage them.", truth:true},
+  {text:"Some bats can live for over 30 years.", truth:true},
+  {text:"Frogs drink water through their skin.", truth:true},
+  {text:"The blue whale’s heart beats only 2-10 times per minute.", truth:true},
+  {text:"The Earth is not a perfect sphere; it’s slightly flattened at the poles.", truth:true},
+  {text:"Jellyfish are older than dinosaurs.", truth:true},
+  {text:"Some turtles can live over 150 years.", truth:true},
+  {text:"Octopuses are extremely intelligent and can solve puzzles.", truth:true},
+  {text:"Some plants can communicate chemically with each other.", truth:true},
+  {text:"Sharks have been around longer than trees.", truth:true},
+  {text:"Ants never sleep.", truth:true},
+  {text:"Sloths can hold their breath underwater for up to 40 minutes.", truth:true},
+  {text:"Sea otters use rocks as tools.", truth:true},
+  {text:"Penguins can recognize each other by voice.", truth:true},
+  {text:"Some birds can see magnetic fields.", truth:true},
+  {text:"Your nose can remember 50,000 different scents.", truth:true},
+  {text:"A group of owls is called a parliament.", truth:true},
+  {text:"Some fish can fly short distances above water.", truth:true},
+  {text:"Some frogs can survive being frozen for months.", truth:true},
+  {text:"The longest-living insect is a termite queen (up to 50 years).", truth:true},
+  {text:"The heart of a blue whale can weigh up to 450 kg.", truth:true},
+  {text:"Some jellyfish are biologically immortal.", truth:true},
+
+  // ---------- 150 BELIEVABLE FAKE FACTS ----------
+  {text:"Humans only use 10% of their brain.", truth:false},
+  {text:"Goldfish have a three-second memory.", truth:false},
+  {text:"Napoleon Bonaparte was extremely short.", truth:false},
+  {text:"Vitamin C prevents colds.", truth:false},
+  {text:"Hair and nails continue growing after death.", truth:false},
+  {text:"Sugar causes hyperactivity in children.", truth:false},
+  {text:"Lightning never strikes the same place twice.", truth:false},
+  {text:"Blood is always red.", truth:false},
+  {text:"Cracking your knuckles causes arthritis.", truth:false},
+  {text:"The Great Wall of China is visible from space with the naked eye.", truth:false},
+  {text:"The tongue of a human is uniquely immune to disease.", truth:false},
+  {text:"Bats are completely blind.", truth:false},
+  {text:"Vaccines can overload your immune system.", truth:false},
+  {text:"Carrots improve night vision dramatically.", truth:false},
+  {text:"Humans swallow eight spiders per year while sleeping.", truth:false},
+  {text:"Eating before swimming is dangerous for all.", truth:false},
+  {text:"Sugar-free gum stays in your stomach for seven years.", truth:false},
+  {text:"You can see the Great Wall of China from the Moon.", truth:false},
+  {text:"Shaving makes hair grow back thicker.", truth:false},
+  {text:"Lightning only strikes during thunderstorms.", truth:false},
+  {text:"Ostriches bury their heads in the sand.", truth:false},
+  {text:"Mount Everest is the tallest mountain in the universe.", truth:false},
+  {text:"Water conducts electricity in pure form.", truth:false},
+  {text:"Humans have 5 senses only.", truth:false},
+  {text:"Vikings wore horned helmets in battle.", truth:false},
+  {text:"Eating chocolate gives you acne.", truth:false},
+  {text:"Sushi means raw fish.", truth:false},
+  {text:"Goldfish grow to the size of their tank.", truth:false},
+  {text:"Swallowed gum takes seven years to digest.", truth:false},
+  {text:"We only have 4 blood types.", truth:false},
+  {text:"Lightning is hotter than the sun’s surface.", truth:false},
+  {text:"Humans are descended from chimps.", truth:false},
+  {text:"We swallow hundreds of insects yearly without noticing.", truth:false},
+  {text:"Humans need 8 glasses of water daily.", truth:false},
+  {text:"Sugar feeds cancer directly.", truth:false},
+  {text:"Bulls get angry when they see red.", truth:false},
+  {text:"Hair grows faster after being cut.", truth:false},
+  {text:"Touching a baby bird will make its mother abandon it.", truth:false},
+  {text:"Dropping a penny from a skyscraper can kill someone.", truth:false},
+  {text:"You lose most of your body heat through your head.", truth:false},
+  {text:"Gold is the heaviest metal.", truth:false},
+  {text:"Humans only have 2 types of taste buds.", truth:false},
+  {text:"Microwaving food destroys all nutrients.", truth:false},
+  {text:"Swimming after eating is dangerous.", truth:false},
+  {text:"Hair and nails continue to grow after death.", truth:false},
+  {text:"Reading in dim light damages eyes.", truth:false},
+  {text:"Lightning never strikes the same place twice.", truth:false},
+  {text:"Eating carrots drastically improves eyesight.", truth:false},
+  {text:"Vaccines can cause autism.", truth:false},
+  {text:"Humans can’t breathe and swallow at the same time.", truth:false},
+  {text:"Your blood is blue in your veins.", truth:false},
+  {text:"Alcohol kills brain cells permanently.", truth:false},
+  {text:"Touching frogs gives warts.", truth:false},
+  {text:"Cracking knuckles causes arthritis.", truth:false},
+  {text:"Shaving makes hair thicker and darker.", truth:false},
+  {text:"Goldfish have a three-second memory.", truth:false},
+  {text:"We only use 10% of our brains.", truth:false},
+  {text:"The five-second rule prevents bacteria.", truth:false},
+  {text:"Humans have 4 blood types only.", truth:false},
+  {text:"The Great Wall of China is visible from space.", truth:false},
+  {text:"Bulls hate the color red.", truth:false},
+  {text:"Einstein failed math in school.", truth:false},
+  {text:"Swallowed gum stays in the stomach for seven years.", truth:false},
+  {text:"Chameleons change color to match their environment.", truth:false},
+  {text:"Lightning can’t strike the same place twice.", truth:false},
+  {text:"Water drains in opposite directions in different hemispheres.", truth:false},
+  {text:"Alcohol warms the body in cold weather.", truth:false},
+  {text:"Humans have five senses only.", truth:false},
+  {text:"Hair and nails grow after death.", truth:false},
+  {text:"You can see the Great Wall of China from the Moon.", truth:false},
+  {text:"Napoleon was extremely short.", truth:false},
+  {text:"Vaccines overload your immune system.", truth:false},
+  {text:"Swallowed gum takes seven years to digest.", truth:false},
+  {text:"Eating sugar causes hyperactivity.", truth:false},
+  {text:"Goldfish grow to the size of their tank.", truth:false},
+  {text:"Cracking knuckles causes arthritis.", truth:false},
+  {text:"Sharks can smell fear.", truth:false},
+  {text:"Lightning never strikes twice in the same place.", truth:false},
+  {text:"Microwaving food destroys nutrients.", truth:false},
+  {text:"Hair grows faster after being cut.", truth:false},
+  {text:"Touching frogs gives warts.", truth:false},
+  {text:"Humans swallow spiders while sleeping.", truth:false},
+  {text:"Eating before swimming is dangerous.", truth:false},
+  {text:"Bulls charge at red color.", truth:false},
+  {text:"We only use 10% of our brain.", truth:false},
+  {text:"Shaving hair makes it grow back thicker.", truth:false},
+  {text:"Reading in dim light damages eyes.", truth:false},
+  {text:"Carrots improve night vision.", truth:false},
+  {text:"Alcohol kills brain cells.", truth:false},
+  {text:"Napoleon was short.", truth:false}
+];
+
+let currentFact = null;
+let streak = 0;
+
+function newFact() {
+  const card = document.getElementById('card');
+  card.classList.add('fade');
+  setTimeout(() => {
+    currentFact = facts[Math.floor(Math.random() * facts.length)];
+    document.getElementById('fact').innerText = currentFact.text;
+    document.getElementById('feedback').innerText = "";
+    card.classList.remove('fade');
+  }, 300);
+}
+
+function guess(answer) {
+  if (!currentFact) return alert("Click 'New Fact' first!");
+  const feedback = document.getElementById('feedback');
+  if(answer === currentFact.truth){
+    feedback.innerText="✅ Correct!";
+    feedback.style.color="green";
+    feedback.style.transform="scale(1.2)";
+    streak++;
+  } else {
+    feedback.innerText="❌ Wrong!";
+    feedback.style.color="red";
+    feedback.style.transform="scale(1.2)";
+    streak=0;
+  }
+  setTimeout(()=>feedback.style.transform="scale(1)",300);
+  document.getElementById
